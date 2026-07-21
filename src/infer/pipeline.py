@@ -56,6 +56,8 @@ def load_sr_model(ckpt_path, device):
 
 
 def load_p2p_generator(ckpt_path, device, repo=P2P_REPO):
+    from src.train.train_pix2pix import ensure_repo
+    ensure_repo(repo)  # clone on demand - inference sessions may not have trained here
     sys.path.insert(0, os.path.abspath(repo))
     from models.networks import define_G
     netG = define_G(input_nc=3, output_nc=3, ngf=64, netG='unet_256',
