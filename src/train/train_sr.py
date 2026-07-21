@@ -91,6 +91,11 @@ def main():
     args = ap.parse_args()
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    if device == 'cpu':
+        print('WARNING: no GPU detected - training would take days on CPU.\n'
+              'Colab: Runtime > Change runtime type > T4 GPU, then re-run setup cells.')
+        raise SystemExit(1)
+    print(f'device: {torch.cuda.get_device_name(0)}')
     os.makedirs(args.out, exist_ok=True)
 
     model = build_model(args.pretrained, device)
