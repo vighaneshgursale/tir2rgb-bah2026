@@ -61,7 +61,6 @@ def main():
            '--n_epochs', str(args.epochs),
            '--n_epochs_decay', str(args.epochs_decay),
            '--save_epoch_freq', '5',
-           '--display_id', '-1',            # no visdom server on Colab/Kaggle
            ]
     if args.continue_train:
         cmd += ['--continue_train', '--epoch_count', str(args.epoch_count)]
