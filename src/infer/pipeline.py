@@ -59,10 +59,14 @@ def load_p2p_generator(ckpt_path, device, repo=P2P_REPO):
     from src.train.train_pix2pix import ensure_repo
     ensure_repo(repo)  # clone on demand - inference sessions may not have trained here
     sys.path.insert(0, os.path.abspath(repo))
+    import inspect
     from models.networks import define_G
-    netG = define_G(input_nc=3, output_nc=3, ngf=64, netG='unet_256',
-                    norm='batch', use_dropout=True, init_type='normal',
-                    init_gain=0.02, gpu_ids=[])
+    # upstream repo periodically changes this signature (e.g. dropped gpu_ids);
+    # pass only the kwargs the installed version accepts
+    kwargs = dict(input_nc=3, output_nc=3, ngf=64, netG='unet_256', norm='batch',
+                  use_dropout=True, init_type='normal', init_gain=0.02, gpu_ids=[])
+    accepted = inspect.signature(define_G).parameters
+    netG = define_G(**{k: v for k, v in kwargs.items() if k in accepted})
     state = torch.load(ckpt_path, map_location='cpu', weights_only=True)
     netG.load_state_dict(state)
     return netG.to(device).eval()
