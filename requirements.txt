@@ -21,3 +21,7 @@ pytorch-fid>=0.3.0
 # NOTE (Colab gotcha): basicsr imports torchvision.transforms.functional_tensor,
 # removed in torchvision>=0.17. The setup cell in notebooks/colab_driver.ipynb
 # applies a one-line sed patch after install — keep it.
+
+# GEE-free data source (Microsoft Planetary Computer)
+pystac-client>=0.7
+planetary-computer>=1.0
