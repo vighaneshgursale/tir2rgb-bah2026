@@ -14,7 +14,7 @@ import time
 import numpy as np
 from PIL import Image
 
-from src.data.normalization import tir_unit_to_uint8
+from src.data.normalization import tir_unit_to_uint8, water_mask
 from src.infer.pipeline import Tir2RgbPipeline, load_tir
 
 
@@ -27,10 +27,9 @@ def build_app(pipe):
         tir = load_tir(file.name)
         sr, rgb, t = pipe(tir)
 
-        rgb_i = rgb.astype(int)
-        water_pct = ((rgb_i[:, :, 2] - rgb_i[:, :, 0]) > 30).mean() * 100
+        water_pct = water_mask(rgb).mean() * 100
         halluc = ('⚠ possible water over-prediction'
-                  if water_pct > 40 else '✓ no hallucination flag')
+                  if water_pct > 60 else '✓ within plausible range')
         log = (f'[{time.strftime("%H:%M:%S")}] input tile: {tir.shape}\n'
                f'stage 1  SR x2 (fine-tuned RRDBNet): {t["sr_s"]:.2f}s -> {sr.shape}\n'
                f'stage 2  Pix2Pix colorize:           {t["colorize_s"]:.2f}s\n'

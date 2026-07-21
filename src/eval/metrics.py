@@ -19,17 +19,16 @@ import numpy as np
 from PIL import Image
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
-from src.data.normalization import kelvin_to_unit, reflectance_to_uint8, tir_unit_to_uint8
+from src.data.normalization import (kelvin_to_unit, reflectance_to_uint8,
+                                    tir_unit_to_uint8, water_mask)
 from src.infer.pipeline import Tir2RgbPipeline
 
 
-def water_consistency(rgb_pred_u8, rgb_gt_u8, thresh=30):
-    """Compare 'blueish water' pixel fraction between prediction and ground
-    truth. Large disagreement = likely water/land hallucination."""
-    def water_frac(img):
-        img = img.astype(int)
-        return ((img[:, :, 2] - img[:, :, 0]) > thresh).mean()
-    wp, wg = water_frac(rgb_pred_u8), water_frac(rgb_gt_u8)
+def water_consistency(rgb_pred_u8, rgb_gt_u8):
+    """Compare water-pixel fraction between prediction and ground truth.
+    Large disagreement = likely water/land hallucination."""
+    wp = water_mask(rgb_pred_u8).mean()
+    wg = water_mask(rgb_gt_u8).mean()
     return wp, wg, abs(wp - wg) < 0.10   # flag if >10 p.p. disagreement
 
 

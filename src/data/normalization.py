@@ -50,3 +50,18 @@ def reflectance_to_uint8(refl, gain=3.0):
 
 def tir_unit_to_uint8(unit):
     return (np.clip(unit, 0.0, 1.0) * 255.0).astype(np.uint8)
+
+
+def water_mask(rgb_u8):
+    """Heuristic water detector for true-color Landsat uint8 imagery.
+
+    Real water is DARK (low overall reflectance) and marginally bluer than red;
+    a naive "strongly blue" test (b - r > 30) misses oceans entirely because
+    open water renders near-black in true color. Still a heuristic - sediment-
+    laden rivers and cloud shadows can fool it - use for consistency checks,
+    not ground truth.
+    """
+    f = rgb_u8.astype(np.int16)
+    r, b = f[..., 0], f[..., 2]
+    brightness = f.mean(axis=-1)
+    return (b >= r + 5) & (brightness < 100)
